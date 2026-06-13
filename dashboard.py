@@ -6,12 +6,23 @@ from src.visualizer import (
     draw_graph,
     draw_node_subgraph
 )
+from src.alerts import generate_alerts
+from src.report_generator import generate_report
 from src.analytics import (
     get_top_connected_nodes,
     calculate_risk_scores,
     get_communities,
-    find_shortest_path
+    find_shortest_path,
+    count_critical_entities,
+    count_high_risk_entities,
+    count_bridge_nodes
 )
+from src.interactive_visualizer import (
+    create_interactive_graph
+)
+from src.exporter import create_text_report
+
+import streamlit.components.v1 as components
 
 st.title("🕸️ Network Intelligence Platform")
 
@@ -28,6 +39,53 @@ if uploaded_file is not None:
     st.dataframe(df)
 
     G = build_graph(df)
+
+    st.subheader("📊 Intelligence Dashboard")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric(
+            "🚨 Critical",
+            count_critical_entities(G)
+        )
+
+    with col2:
+        st.metric(
+            "⚠️ High Risk",
+            count_high_risk_entities(G)
+        )
+
+    with col3:
+        st.metric(
+            "🌉 Bridges",
+            count_bridge_nodes(G)
+        )
+
+    with col4:
+        st.metric(
+            "👥 Communities",
+            len(get_communities(G))
+        )
+
+    st.subheader("🚨 Intelligence Alerts")
+
+    alerts = generate_alerts(G)
+
+    if alerts:
+
+        alerts_df = pd.DataFrame(alerts)
+
+        st.dataframe(
+            alerts_df,
+            use_container_width=True
+        )
+
+    else:
+
+        st.success(
+            "No alerts detected."
+        )
 
     st.subheader("Network Summary")
 
@@ -100,6 +158,57 @@ if uploaded_file is not None:
 
             break
 
+    st.subheader("📄 Investigation Report")
+
+    if st.button("Generate Report"):
+
+        report = generate_report(
+            G,
+            selected_node
+        )
+
+        st.write("### Entity")
+        st.write(report["Entity"])
+
+        st.write("### Risk Score")
+        st.write(report["Risk Score"])
+
+        st.write("### Risk Level")
+        st.write(report["Risk Level"])
+        st.write("### Connections")
+
+        for connection in report["Connections"]:
+            st.write(f"• {connection}")
+
+        st.write("### Community")
+
+        for member in report["Community"]:
+            st.write(f"• {member}")
+
+        st.write("### Reasons")
+
+        if report["Reasons"]:
+
+            for reason in report["Reasons"]:
+                st.write(f"• {reason}")
+
+        else:
+
+            st.write("No significant findings.")
+        st.write("### Recommendation")
+        st.write(report["Recommendation"])
+
+        report_text = create_text_report(
+        report
+    )
+
+        st.download_button(
+            label="📄 Download Report",
+            data=report_text,
+            file_name=f"{selected_node}_report.txt",
+            mime="text/plain"
+        )
+
     st.write("### Investigation Graph")
 
     subgraph_fig = draw_node_subgraph(
@@ -141,3 +250,15 @@ if uploaded_file is not None:
     fig = draw_graph(G)
 
     st.pyplot(fig)
+    st.subheader("🌐 Interactive Network")
+
+    html_file = create_interactive_graph(G)
+
+    with open(html_file, "r", encoding="utf-8") as f:
+
+        source_code = f.read()
+
+    components.html(
+        source_code,
+        height=750
+    )

@@ -79,3 +79,39 @@ def calculate_risk_scores(G):
         key=lambda x: x[1],
         reverse=True
     )
+
+def count_critical_entities(G):
+
+    risk_scores = dict(
+        calculate_risk_scores(G)
+    )
+
+    return sum(
+        1
+        for score in risk_scores.values()
+        if score > 40
+    )
+
+
+def count_high_risk_entities(G):
+
+    risk_scores = dict(
+        calculate_risk_scores(G)
+    )
+
+    return sum(
+        1
+        for score in risk_scores.values()
+        if score > 25
+    )
+
+
+def count_bridge_nodes(G):
+
+    betweenness = nx.betweenness_centrality(G)
+
+    return sum(
+        1
+        for value in betweenness.values()
+        if value > 0.20
+    )
