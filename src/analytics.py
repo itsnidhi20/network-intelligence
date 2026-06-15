@@ -115,3 +115,67 @@ def count_bridge_nodes(G):
         for value in betweenness.values()
         if value > 0.20
     )
+
+def rank_communities(G):
+
+    communities = get_communities(G)
+
+    risk_scores = dict(
+        calculate_risk_scores(G)
+    )
+
+    results = []
+
+    for i, community in enumerate(
+        communities,
+        start=1
+    ):
+
+        community_risk = 0
+
+        high_risk_members = []
+
+        for node in community:
+
+            score = risk_scores.get(
+                node,
+                0
+            )
+
+            community_risk += score
+
+            if score > 25:
+
+                high_risk_members.append(
+                    (node, score)
+                )
+
+        results.append({
+
+        "Community": i,
+
+        "Members": sorted(
+            list(community)
+        ),
+
+        "Member Count": len(
+            community
+        ),
+
+        "Risk Score": round(
+            community_risk,
+            2
+        ),
+
+        "High Risk Members":
+        high_risk_members
+
+        })
+
+    results = sorted(
+        results,
+        key=lambda x: x["Risk Score"],
+        reverse=True
+    )
+
+    return results

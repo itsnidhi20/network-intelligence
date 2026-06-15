@@ -2,6 +2,23 @@ import streamlit as st
 import pandas as pd
 
 from src.graph_builder import build_graph
+import matplotlib.pyplot as plt
+from src.investigation_timeline import (
+    get_investigation_timeline
+)
+from src.lead_generator import (
+    generate_leads
+)
+from src.suspicious_relationships import (
+    find_suspicious_relationships
+)
+from src.executive_summary import (
+    generate_executive_summary
+)
+from src.hidden_connectors import (
+    detect_hidden_connectors
+)
+from src.timeline import get_activity_timeline
 from src.visualizer import (
     draw_graph,
     draw_node_subgraph
@@ -15,12 +32,16 @@ from src.analytics import (
     find_shortest_path,
     count_critical_entities,
     count_high_risk_entities,
-    count_bridge_nodes
+    count_bridge_nodes,
+    rank_communities
 )
 from src.interactive_visualizer import (
     create_interactive_graph
 )
 from src.exporter import create_text_report
+from src.pdf_exporter import create_pdf_report
+import tempfile
+from pathlib import Path
 
 import streamlit.components.v1 as components
 
@@ -39,6 +60,8 @@ if uploaded_file is not None:
     st.dataframe(df)
 
     G = build_graph(df)
+
+    
 
     st.subheader("📊 Intelligence Dashboard")
 
@@ -71,7 +94,6 @@ if uploaded_file is not None:
     st.subheader("🚨 Intelligence Alerts")
 
     alerts = generate_alerts(G)
-
     if alerts:
 
         alerts_df = pd.DataFrame(alerts)
@@ -86,6 +108,302 @@ if uploaded_file is not None:
         st.success(
             "No alerts detected."
         )
+
+    st.subheader("🏘️ Community Overview")
+
+    community_results = rank_communities(G)
+
+    community_table = []
+
+    for community in community_results:
+
+        community_table.append({
+
+            "Community":
+            community["Community"],
+
+            "Members":
+            ", ".join(
+                community["Members"]
+            ),
+
+            "Member Count":
+            community["Member Count"]
+
+        })
+
+    community_df = pd.DataFrame(
+        community_table
+    )
+
+    st.dataframe(
+        community_df,
+        use_container_width=True
+    )
+
+    st.subheader("🏘️ Community Intelligence")
+
+    community_results = rank_communities(G)
+    for community in community_results:
+
+        st.write(
+            f"### Community {community['Community']}"
+        )
+
+        st.write(
+            f"Members: {community['Member Count']}"
+        )
+
+        st.write("Member List")
+
+        st.write(
+            ", ".join(
+                community["Members"]
+            )
+        )
+
+        st.write(
+            f"Risk Score: {community['Risk Score']}"
+        )
+
+        if community["Risk Score"] > 150:
+
+            st.error(
+                "🔴 HIGH RISK COMMUNITY"
+            )
+
+        elif community["Risk Score"] > 75:
+
+            st.warning(
+                "🟠 MEDIUM RISK COMMUNITY"
+            )
+
+        else:
+
+            st.success(
+                "🟢 LOW RISK COMMUNITY"
+            )
+
+        st.write("### High Risk Members")
+
+        if community["High Risk Members"]:
+
+            for node, score in community["High Risk Members"]:
+
+                st.write(
+                    f"• {node} ({score})"
+                )
+
+        else:
+
+            st.write(
+                "No high risk members."
+            )
+
+    st.subheader(
+    "🕵️ Hidden Connectors"
+    )
+
+    connectors = detect_hidden_connectors(G)
+
+    if connectors:
+
+        connectors_df = pd.DataFrame(
+            connectors
+        )
+
+        st.dataframe(
+            connectors_df,
+            use_container_width=True
+        )
+
+    else:
+
+        st.info(
+            "No hidden connectors detected."
+        )
+
+    st.subheader(
+    "🔍 Suspicious Relationships"
+)
+
+    relationships = (
+        find_suspicious_relationships(G)
+    )
+
+    relationships_df = pd.DataFrame(
+        relationships
+    )
+
+    st.dataframe(
+        relationships_df,
+        use_container_width=True
+    )
+
+    st.subheader(
+    "🎯 Investigation Leads"
+)
+
+    leads = generate_leads(G)
+
+    if leads:
+
+        for i, lead in enumerate(
+        leads,
+        start=1
+        ):
+
+            st.write(
+                f"### 🎯 Priority #{i}"
+            )
+
+            st.write(
+                f"Entity: "
+                f"{lead['Entity']}"
+            )
+
+            st.write(
+                f"Priority Score: "
+                f"{lead['Priority Score']}"
+            )
+
+            st.write(
+                "Reasons:"
+            )
+
+            for reason in lead["Reasons"]:
+
+                st.write(
+                    f"• {reason}"
+                )
+
+    else:
+
+        st.info(
+            "No investigation leads identified."
+        )
+
+    st.subheader(
+    "🕒 Investigation Timeline"
+    )
+
+    timeline_events = (
+        get_investigation_timeline(df)
+    )
+
+    for _, row in timeline_events.iterrows():
+
+        st.write(
+            f"📅 {row['date']} | "
+            f"{row['source']} → "
+            f"{row['target']} "
+            f"({row['relationship']})"
+        )
+
+    # EXISTING CODE CONTINUES
+    st.subheader("📈 Timeline Intelligence")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        start_date = st.date_input(
+            "Start Date",
+            value=pd.to_datetime(
+                df["date"]
+            ).min()
+        )
+
+    with col2:
+
+        end_date = st.date_input(
+            "End Date",
+            value=pd.to_datetime(
+                df["date"]
+            ).max()
+        )
+        
+    
+    if start_date > end_date:
+
+        st.error(
+            "Start Date must be before End Date."
+        )
+
+        st.stop()
+
+    timeline_df = get_activity_timeline(
+        
+        
+        df,
+        start_date=start_date,
+        end_date=end_date
+    )
+
+    fig, ax = plt.subplots(
+        figsize=(8, 4)
+    )
+
+    ax.plot(
+        timeline_df["date"],
+        timeline_df["Interactions"],
+        marker="o"
+    )
+
+    ax.set_title(
+        "Network Activity Over Time"
+    )
+
+    ax.set_xlabel(
+        "Date"
+    )
+
+    ax.set_ylabel(
+    "Interactions"
+    )
+
+    plt.xticks(
+    
+    rotation=45
+    )
+
+    st.pyplot(fig)
+
+    if not timeline_df.empty:
+
+        peak_day = timeline_df.loc[
+            timeline_df["Interactions"].idxmax()
+        ]
+
+        st.info(
+            f"📌 Peak activity occurred on "
+            f"{peak_day['date']} "
+            f"with {peak_day['Interactions']} interactions."
+        )
+
+    else:
+
+        st.warning(
+            "No activity found for the selected date range."
+        )
+
+    st.subheader(
+    "🧠 Executive Intelligence Summary"
+    )
+
+    summary_text = (
+        generate_executive_summary(
+            G,
+            timeline_df
+        )
+    )
+
+    st.download_button(
+        label="📄 Download Executive Summary",
+        data=summary_text,
+        file_name="executive_summary.txt",
+        mime="text/plain"
+    )
 
     st.subheader("Network Summary")
 
@@ -208,6 +526,27 @@ if uploaded_file is not None:
             file_name=f"{selected_node}_report.txt",
             mime="text/plain"
         )
+
+        temp_pdf = tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".pdf"
+        )
+
+        temp_pdf.close()
+
+        create_pdf_report(
+        report,
+        temp_pdf.name
+        )
+
+        with open(temp_pdf.name, "rb") as pdf_file:
+
+            st.download_button(
+                label="📑 Download PDF Report",
+                data=pdf_file,
+                file_name=f"Investigation_Report_{selected_node}.pdf",
+                mime="application/pdf"
+            )
 
     st.write("### Investigation Graph")
 
