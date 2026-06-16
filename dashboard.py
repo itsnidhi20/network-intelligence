@@ -109,6 +109,8 @@ if uploaded_file is not None:
             "No alerts detected."
         )
 
+        
+
     st.subheader("🏘️ Community Overview")
 
     community_results = rank_communities(G)
@@ -144,61 +146,63 @@ if uploaded_file is not None:
     st.subheader("🏘️ Community Intelligence")
 
     community_results = rank_communities(G)
+
     for community in community_results:
 
-        st.write(
-            f"### Community {community['Community']}"
-        )
-
-        st.write(
-            f"Members: {community['Member Count']}"
-        )
-
-        st.write("Member List")
-
-        st.write(
-            ", ".join(
-                community["Members"]
-            )
-        )
-
-        st.write(
-            f"Risk Score: {community['Risk Score']}"
-        )
-
-        if community["Risk Score"] > 150:
-
-            st.error(
-                "🔴 HIGH RISK COMMUNITY"
-            )
-
-        elif community["Risk Score"] > 75:
-
-            st.warning(
-                "🟠 MEDIUM RISK COMMUNITY"
-            )
-
-        else:
-
-            st.success(
-                "🟢 LOW RISK COMMUNITY"
-            )
-
-        st.write("### High Risk Members")
-
-        if community["High Risk Members"]:
-
-            for node, score in community["High Risk Members"]:
-
-                st.write(
-                    f"• {node} ({score})"
-                )
-
-        else:
+        with st.expander(
+            f"🏘️ Community {community['Community']} | "
+            f"Risk: {community['Risk Score']}"
+        ):
 
             st.write(
-                "No high risk members."
+                f"Members: {community['Member Count']}"
             )
+
+            st.write("Member List")
+
+            st.write(
+                ", ".join(
+                    community["Members"]
+                )
+            )
+
+            st.write(
+                f"Risk Score: {community['Risk Score']}"
+            )
+
+            if community["Risk Score"] > 150:
+
+                st.error(
+                    "🔴 HIGH RISK COMMUNITY"
+                )
+
+            elif community["Risk Score"] > 75:
+
+                st.warning(
+                    "🟠 MEDIUM RISK COMMUNITY"
+                )
+
+            else:
+
+                st.success(
+                    "🟢 LOW RISK COMMUNITY"
+                )
+
+            st.write("### High Risk Members")
+
+            if community["High Risk Members"]:
+
+                for node, score in community["High Risk Members"]:
+
+                    st.write(
+                        f"• {node} ({score})"
+                    )
+
+            else:
+
+                st.write(
+                    "No high risk members."
+                )
 
     st.subheader(
     "🕵️ Hidden Connectors"
@@ -249,33 +253,39 @@ if uploaded_file is not None:
     if leads:
 
         for i, lead in enumerate(
-        leads,
-        start=1
+            leads,
+            start=1
         ):
 
-            st.write(
-                f"### 🎯 Priority #{i}"
-            )
-
-            st.write(
-                f"Entity: "
-                f"{lead['Entity']}"
-            )
-
-            st.write(
-                f"Priority Score: "
-                f"{lead['Priority Score']}"
-            )
-
-            st.write(
-                "Reasons:"
-            )
-
-            for reason in lead["Reasons"]:
+            with st.expander(
+                f"🎯 Priority #{i} | "
+                f"{lead['Entity']} | "
+                f"Score: {lead['Priority Score']}"
+            ):
 
                 st.write(
-                    f"• {reason}"
+                    f"### 🎯 Priority #{i}"
                 )
+
+                st.write(
+                    f"Entity: "
+                    f"{lead['Entity']}"
+                )
+
+                st.write(
+                    f"Priority Score: "
+                    f"{lead['Priority Score']}"
+                )
+
+                st.write(
+                    "Reasons:"
+                )
+
+                for reason in lead["Reasons"]:
+
+                    st.write(
+                        f"• {reason}"
+                    )
 
     else:
 
@@ -291,14 +301,18 @@ if uploaded_file is not None:
         get_investigation_timeline(df)
     )
 
-    for _, row in timeline_events.iterrows():
+    with st.expander(
+    "🕒 View Investigation Timeline"
+    ):
 
-        st.write(
-            f"📅 {row['date']} | "
-            f"{row['source']} → "
-            f"{row['target']} "
-            f"({row['relationship']})"
-        )
+        for _, row in timeline_events.iterrows():
+
+            st.write(
+                f"📅 {row['date']} | "
+                f"{row['source']} → "
+                f"{row['target']} "
+                f"({row['relationship']})"
+            )
 
     # EXISTING CODE CONTINUES
     st.subheader("📈 Timeline Intelligence")
@@ -387,23 +401,7 @@ if uploaded_file is not None:
             "No activity found for the selected date range."
         )
 
-    st.subheader(
-    "🧠 Executive Intelligence Summary"
-    )
-
-    summary_text = (
-        generate_executive_summary(
-            G,
-            timeline_df
-        )
-    )
-
-    st.download_button(
-        label="📄 Download Executive Summary",
-        data=summary_text,
-        file_name="executive_summary.txt",
-        mime="text/plain"
-    )
+    
 
     st.subheader("Network Summary")
 
