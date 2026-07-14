@@ -1,20 +1,31 @@
 source,target,relationship,date
-A,B,call,2026-01-01
-A,C,call,2026-01-02
-B,D,transaction,2026-01-03
-C,D,meeting,2026-01-04
-D,E,call,2026-01-05
-E,F,meeting,2026-01-06
-
-J,K,call,2026-01-01
-K,L,transaction,2026-01-03
-L,M,meeting,2026-01-05
-M,N,call,2026-01-07
-
-R,S,call,2026-01-02
-S,T,transaction,2026-01-04
-T,U,meeting,2026-01-06
-U,V,call,2026-01-08
-
-X,Y,transaction,2026-01-02
-Y,Z,meeting,2026-01-05
+Rahul Verma,Priya Mehta,Call,2026-01-01
+Rahul Verma,Karan Gupta,Transfer,2026-01-01
+Rahul Verma,Aisha Khan,Meeting,2026-01-02
+Priya Mehta,Neha Singh,Email,2026-01-02
+Karan Gupta,Rohit Sharma,Payment,2026-01-03
+Aisha Khan,Sneha Patel,Call,2026-01-03
+Neha Singh,Vendor Alpha,Transfer,2026-01-04
+Rohit Sharma,Vendor Alpha,Meeting,2026-01-04
+Sneha Patel,Vendor Alpha,Email,2026-01-05
+Vendor Alpha,Arjun Nair,Payment,2026-01-05
+Arjun Nair,Vikram Rao,Call,2026-01-06
+Vikram Rao,Finance Team,Meeting,2026-01-06
+Finance Team,Amit Desai,Approval,2026-01-07
+Amit Desai,Rahul Verma,Email,2026-01-07
+Karan Gupta,Neha Singh,Meeting,2026-01-08
+Priya Mehta,Sneha Patel,Transfer,2026-01-08
+Rahul Verma,Vendor Beta,Payment,2026-01-09
+Vendor Beta,Arjun Nair,Call,2026-01-09
+Vendor Beta,Rohit Sharma,Transfer,2026-01-10
+Aisha Khan,Vikram Rao,Meeting,2026-01-10
+Finance Team,Vendor Alpha,Payment,2026-01-11
+Finance Team,Vendor Beta,Payment,2026-01-11
+Amit Desai,Karan Gupta,Call,2026-01-12
+Neha Singh,Rahul Verma,Email,2026-01-12
+Sneha Patel,Vendor Beta,Meeting,2026-01-13
+Arjun Nair,Priya Mehta,Transfer,2026-01-13
+Vikram Rao,Rahul Verma,Call,2026-01-14
+Vendor Alpha,Vendor Beta,Transaction,2026-01-14
+Karan Gupta,Finance Team,Email,2026-01-15
+Aisha Khan,Vendor Alpha,Meeting,2026-01-15

@@ -43,9 +43,340 @@ from src.pdf_exporter import create_pdf_report
 import tempfile
 from pathlib import Path
 
+import base64
+from pathlib import Path
+
+def get_base64_image(image_path):
+
+    with open(image_path, "rb") as img:
+
+        return base64.b64encode(
+            img.read()
+        ).decode()
+
+
 import streamlit.components.v1 as components
+import time
+
+world_map = get_base64_image(
+    "assets/world_map.png"
+)
+
+st.markdown(
+    f"""
+<style>
+
+.stApp {{
+
+    background-color: #0b0f14;
+
+    background-image:
+        url("data:image/png;base64,{world_map}");
+
+    background-repeat: no-repeat;
+
+    background-position: center;
+
+    background-size: 90%;
+
+    background-attachment: fixed;
+
+}}
+
+.stApp::before {{
+
+    content: "";
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background: rgba(
+        11,
+        15,
+        20,
+        0.70
+    );
+
+    pointer-events: none;
+
+}}
+
+</style>
+""",
+    unsafe_allow_html=True
+)
+
+st.markdown("""
+<style>
+
+[data-testid="stMetric"] {
+
+    transition: all 0.3s ease;
+
+}
+
+[data-testid="stMetric"]:hover {
+
+    transform: translateY(-4px);
+
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+
+[data-testid="stMetric"] {
+
+    background: #161b22;
+
+    border: 1px solid rgba(
+        0,
+        255,
+        136,
+        0.3
+    );
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+
+.main {
+    background-color: #0b0f14;
+}
+
+h1, h2, h3 {
+    color: #00ff88;
+}
+
+[data-testid="stMetric"] {
+    background-color: #161b22;
+    border: 1px solid #00ff88;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+[data-testid="stMetric"]:hover {
+    border: 1px solid #00ffaa;
+}
+
+div[data-baseweb="select"] {
+    background-color: #161b22;
+}
+
+.stDataFrame {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown(
+    """
+    <style>
+
+    #MainMenu {
+        visibility: hidden;
+    }
+
+    footer {
+        visibility: hidden;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+if "booted" not in st.session_state:
+
+    components.html(
+        """
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <style>
+        body {
+            margin:0;
+            overflow:hidden;
+            background:black;
+        }
+
+        canvas {
+            display:block;
+        }
+
+        .center-text {
+            position:absolute;
+            top:50%;
+            left:50%;
+            transform:translate(-50%, -50%);
+            text-align:center;
+            color:#00ff41;
+            font-family:monospace;
+            z-index:10;
+        }
+
+        .title {
+            font-size:42px;
+            font-weight:bold;
+            text-shadow:0 0 20px #00ff41;
+        }
+
+        .subtitle {
+            margin-top:20px;
+            font-size:18px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity:0.3; }
+        }
+        </style>
+        </head>
+
+        <body>
+
+        <canvas id="matrix"></canvas>
+
+        <div class="center-text">
+            <div class="title">
+                NETWORK INTELLIGENCE
+            </div>
+
+            <div class="subtitle">
+                INITIALIZING...
+            </div>
+
+            <div class="subtitle">
+                SCANNING NETWORKS
+            </div>
+
+            <div class="subtitle">
+                DETECTING COMMUNITIES
+            </div>
+
+            <div class="subtitle">
+                IDENTIFYING THREATS
+            </div>
+        </div>
+
+        <script>
+
+        const canvas =
+            document.getElementById("matrix");
+
+        const ctx =
+            canvas.getContext("2d");
+
+        canvas.width =
+            window.innerWidth;
+
+        canvas.height =
+            window.innerHeight;
+
+        const chars =
+            "01";
+
+        const fontSize = 16;
+
+        const columns =
+            canvas.width / fontSize;
+
+        const drops = [];
+
+        for(let x=0; x<columns; x++){
+
+            drops[x]=1;
+
+        }
+
+        function draw(){
+
+            ctx.fillStyle =
+                "rgba(0,0,0,0.05)";
+
+            ctx.fillRect(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+            ctx.fillStyle =
+                "#00ff41";
+
+            ctx.font =
+                fontSize + "px monospace";
+
+            for(let i=0;i<drops.length;i++){
+
+                const text =
+                    chars[
+                        Math.floor(
+                            Math.random()*chars.length
+                        )
+                    ];
+
+                ctx.fillText(
+                    text,
+                    i*fontSize,
+                    drops[i]*fontSize
+                );
+
+                if(
+                    drops[i]*fontSize
+                    >
+                    canvas.height
+                    &&
+                    Math.random() > 0.975
+                ){
+
+                    drops[i]=0;
+
+                }
+
+                drops[i]++;
+
+            }
+
+        }
+
+        setInterval(draw,35);
+
+        </script>
+
+        </body>
+        </html>
+        """,
+        height=700,
+    )
+
+    time.sleep(2)
+
+    st.session_state.booted = True
+
+    st.rerun()
 
 st.title("🕸️ Network Intelligence Platform")
+st.caption(
+    "Analyze interaction networks, identify hidden connectors, discover investigation leads, and generate intelligence reports."
+)
 
 uploaded_file = st.file_uploader(
     "Upload Interaction CSV",
@@ -56,546 +387,678 @@ if uploaded_file is not None:
 
     df = pd.read_csv(uploaded_file)
 
-    st.subheader("Uploaded Data")
-    st.dataframe(df)
-
-    G = build_graph(df)
-
-    
-
-    st.subheader("📊 Intelligence Dashboard")
-
-    col1, col2, col3, col4 = st.columns(4)
-
-    with col1:
-        st.metric(
-            "🚨 Critical",
-            count_critical_entities(G)
-        )
-
-    with col2:
-        st.metric(
-            "⚠️ High Risk",
-            count_high_risk_entities(G)
-        )
-
-    with col3:
-        st.metric(
-            "🌉 Bridges",
-            count_bridge_nodes(G)
-        )
-
-    with col4:
-        st.metric(
-            "👥 Communities",
-            len(get_communities(G))
-        )
-
-    st.subheader("🚨 Intelligence Alerts")
-
-    alerts = generate_alerts(G)
-    if alerts:
-
-        alerts_df = pd.DataFrame(alerts)
+    with st.expander(
+    "📄 View Uploaded Data"
+    ):
 
         st.dataframe(
-            alerts_df,
+            df,
             use_container_width=True
         )
 
-    else:
+    G = build_graph(df)
+    st.sidebar.title(
+        "🕸️ Network Intelligence"
+    )
 
-        st.success(
-            "No alerts detected."
+    st.sidebar.caption(
+        "Cyber Investigation Platform"
+    )
+    page = st.sidebar.selectbox(
+        "Navigation",
+        [
+            "📊 Overview",
+            "🚨 Intelligence",
+            "🏘️ Communities",
+            "🔎 Investigation",
+            "🕒 Timeline",
+            "🌐 Visualizations"
+        ]
+    )
+  
+
+    
+    st.divider()
+    if page == "📊 Overview":
+
+        st.header(
+            "📊 Executive Overview"
         )
 
-        
+    # dashboard metrics
+    
 
-    st.subheader("🏘️ Community Overview")
+        st.subheader("📊 Intelligence Dashboard")
 
-    community_results = rank_communities(G)
+        col1, col2, col3, col4 = st.columns(4)
 
-    community_table = []
-
-    for community in community_results:
-
-        community_table.append({
-
-            "Community":
-            community["Community"],
-
-            "Members":
-            ", ".join(
-                community["Members"]
-            ),
-
-            "Member Count":
-            community["Member Count"]
-
-        })
-
-    community_df = pd.DataFrame(
-        community_table
-    )
-
-    st.dataframe(
-        community_df,
-        use_container_width=True
-    )
-
-    st.subheader("🏘️ Community Intelligence")
-
-    community_results = rank_communities(G)
-
-    for community in community_results:
-
-        with st.expander(
-            f"🏘️ Community {community['Community']} | "
-            f"Risk: {community['Risk Score']}"
-        ):
-
-            st.write(
-                f"Members: {community['Member Count']}"
+        with col1:
+            st.metric(
+                "🚨 Critical",
+                count_critical_entities(G)
             )
 
-            st.write("Member List")
-
-            st.write(
-                ", ".join(
-                    community["Members"]
-                )
+        with col2:
+            st.metric(
+                "⚠️ High Risk",
+                count_high_risk_entities(G)
             )
 
-            st.write(
-                f"Risk Score: {community['Risk Score']}"
+        with col3:
+            st.metric(
+                "🌉 Bridges",
+                count_bridge_nodes(G)
             )
 
-            if community["Risk Score"] > 150:
+        with col4:
+            st.metric(
+                "👥 Communities",
+                len(get_communities(G))
+            )
 
-                st.error(
-                    "🔴 HIGH RISK COMMUNITY"
-                )
+        st.divider()
 
-            elif community["Risk Score"] > 75:
+        st.subheader(
+            "🧠 Executive Intelligence Summary"
+        )
+        timeline_df = get_activity_timeline(df)
 
-                st.warning(
-                    "🟠 MEDIUM RISK COMMUNITY"
+        summary = generate_executive_summary(
+            G,
+            timeline_df
+        )
+
+        st.text(
+            summary
+        )
+        st.download_button(
+        label="📄 Download Executive Summary",
+        data=summary,
+        file_name="executive_summary.txt",
+        mime="text/plain"
+         )
+        st.divider()
+
+    if page == "🚨 Intelligence":
+
+            st.header(
+                "🚨 Intelligence Findings"
+            )
+            st.subheader("🚨 Intelligence Alerts")
+            
+
+            alerts = generate_alerts(G)
+            if alerts:
+
+                alerts_df = pd.DataFrame(alerts)
+
+                st.dataframe(
+                    alerts_df,
+                    use_container_width=True
                 )
 
             else:
 
                 st.success(
-                    "🟢 LOW RISK COMMUNITY"
+                    "No alerts detected."
                 )
 
-            st.write("### High Risk Members")
+            st.subheader(
+            "🕵️ Hidden Connectors"
+            )
 
-            if community["High Risk Members"]:
+            connectors = detect_hidden_connectors(G)
 
-                for node, score in community["High Risk Members"]:
+            if connectors:
 
-                    st.write(
-                        f"• {node} ({score})"
-                    )
+                connectors_df = pd.DataFrame(
+                    connectors
+                )
+
+                st.dataframe(
+                    connectors_df,
+                    use_container_width=True
+                )
 
             else:
 
-                st.write(
-                    "No high risk members."
+                st.info(
+                    "No hidden connectors detected."
                 )
 
-    st.subheader(
-    "🕵️ Hidden Connectors"
-    )
+            st.subheader(
+            "🔍 Suspicious Relationships"
+            )
 
-    connectors = detect_hidden_connectors(G)
+            relationships = (
+                find_suspicious_relationships(G)
+            )
 
-    if connectors:
+            relationships_df = pd.DataFrame(
+                relationships
+            )
 
-        connectors_df = pd.DataFrame(
-            connectors
+            st.dataframe(
+                relationships_df,
+                use_container_width=True
+            )
+
+            st.divider()
+
+            st.header(
+                "🎯 Investigation Priorities"
+            )
+            st.subheader(
+            "🎯 Investigation Leads"
+            )
+
+            leads = generate_leads(G)
+
+            if leads:
+
+                for i, lead in enumerate(
+                    leads,
+                    start=1
+                ):
+
+                    with st.expander(
+                        f"🎯 Priority #{i} | "
+                        f"{lead['Entity']} | "
+                        f"Score: {lead['Priority Score']}"
+                    ):
+
+                        st.write(
+                            f"### 🎯 Priority #{i}"
+                        )
+
+                        st.write(
+                            f"Entity: "
+                            f"{lead['Entity']}"
+                        )
+
+                        st.write(
+                            f"Priority Score: "
+                            f"{lead['Priority Score']}"
+                        )
+
+                        st.write(
+                            "Reasons:"
+                        )
+
+                        for reason in lead["Reasons"]:
+
+                            st.write(
+                                f"• {reason}"
+                            )
+
+            else:
+
+                st.info(
+                    "No investigation leads identified."
+                )
+
+    st.divider()
+
+                    
+               
+
+    if page == "🏘️ Communities":
+
+        st.header(
+            "🏘️ Community Analysis"
+        )
+        st.subheader("🏘️ Community Overview")
+
+        community_results = rank_communities(G)
+
+        community_table = []
+
+        for community in community_results:
+
+            community_table.append({
+
+                "Community":
+                community["Community"],
+
+                "Members":
+                ", ".join(
+                    community["Members"]
+                ),
+
+                "Member Count":
+                community["Member Count"]
+
+            })
+
+        community_df = pd.DataFrame(
+            community_table
         )
 
         st.dataframe(
-            connectors_df,
+            community_df,
             use_container_width=True
         )
 
-    else:
+        st.subheader("🏘️ Community Intelligence")
 
-        st.info(
-            "No hidden connectors detected."
-        )
+        community_results = rank_communities(G)
 
-    st.subheader(
-    "🔍 Suspicious Relationships"
-)
-
-    relationships = (
-        find_suspicious_relationships(G)
-    )
-
-    relationships_df = pd.DataFrame(
-        relationships
-    )
-
-    st.dataframe(
-        relationships_df,
-        use_container_width=True
-    )
-
-    st.subheader(
-    "🎯 Investigation Leads"
-)
-
-    leads = generate_leads(G)
-
-    if leads:
-
-        for i, lead in enumerate(
-            leads,
-            start=1
-        ):
+        for community in community_results:
 
             with st.expander(
-                f"🎯 Priority #{i} | "
-                f"{lead['Entity']} | "
-                f"Score: {lead['Priority Score']}"
+                f"🏘️ Community {community['Community']} | "
+                f"Risk: {community['Risk Score']}"
             ):
 
                 st.write(
-                    f"### 🎯 Priority #{i}"
+                    f"Members: {community['Member Count']}"
+                )
+
+                st.write("Member List")
+
+                st.write(
+                    ", ".join(
+                        community["Members"]
+                    )
                 )
 
                 st.write(
-                    f"Entity: "
-                    f"{lead['Entity']}"
+                    f"Risk Score: {community['Risk Score']}"
                 )
 
-                st.write(
-                    f"Priority Score: "
-                    f"{lead['Priority Score']}"
-                )
+                if community["Risk Score"] > 150:
 
-                st.write(
-                    "Reasons:"
-                )
-
-                for reason in lead["Reasons"]:
-
-                    st.write(
-                        f"• {reason}"
+                    st.error(
+                        "🔴 HIGH RISK COMMUNITY"
                     )
 
-    else:
+                elif community["Risk Score"] > 75:
 
-        st.info(
-            "No investigation leads identified."
+                    st.warning(
+                        "🟠 MEDIUM RISK COMMUNITY"
+                    )
+
+                else:
+
+                    st.success(
+                        "🟢 LOW RISK COMMUNITY"
+                    )
+
+                st.write("### High Risk Members")
+
+                if community["High Risk Members"]:
+
+                    for node, score in community["High Risk Members"]:
+
+                        st.write(
+                            f"• {node} ({score})"
+                        )
+
+                else:
+
+                    st.write(
+                        "No high risk members."
+                    )
+
+        
+
+    if page == "🕒 Timeline":
+
+        st.header(
+            "🕒 Timeline Analysis"
         )
 
-    st.subheader(
-    "🕒 Investigation Timeline"
-    )
+        st.subheader(
+        "🕒 Investigation Timeline"
+        )
 
-    timeline_events = (
-        get_investigation_timeline(df)
-    )
+        timeline_events = (
+            get_investigation_timeline(df)
+        )
 
-    with st.expander(
-    "🕒 View Investigation Timeline"
-    ):
+        with st.expander(
+        "🕒 View Investigation Timeline"
+        ):
 
-        for _, row in timeline_events.iterrows():
+            for _, row in timeline_events.iterrows():
 
-            st.write(
-                f"📅 {row['date']} | "
-                f"{row['source']} → "
-                f"{row['target']} "
-                f"({row['relationship']})"
+                st.write(
+                    f"📅 {row['date']} | "
+                    f"{row['source']} → "
+                    f"{row['target']} "
+                    f"({row['relationship']})"
+                )
+
+        # EXISTING CODE CONTINUES
+        st.subheader("📈 Timeline Intelligence")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+
+            start_date = st.date_input(
+                "Start Date",
+                value=pd.to_datetime(
+                    df["date"]
+                ).min()
             )
 
-    # EXISTING CODE CONTINUES
-    st.subheader("📈 Timeline Intelligence")
+        with col2:
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-
-        start_date = st.date_input(
-            "Start Date",
-            value=pd.to_datetime(
-                df["date"]
-            ).min()
-        )
-
-    with col2:
-
-        end_date = st.date_input(
-            "End Date",
-            value=pd.to_datetime(
-                df["date"]
-            ).max()
-        )
+            end_date = st.date_input(
+                "End Date",
+                value=pd.to_datetime(
+                    df["date"]
+                ).max()
+            )
+            
         
-    
-    if start_date > end_date:
+        if start_date > end_date:
 
-        st.error(
-            "Start Date must be before End Date."
+            st.error(
+                "Start Date must be before End Date."
+            )
+
+            st.stop()
+
+        timeline_df = get_activity_timeline(
+            
+            
+            df,
+            start_date=start_date,
+            end_date=end_date
         )
 
-        st.stop()
+        fig, ax = plt.subplots(
+            figsize=(8, 4)
+        )
 
-    timeline_df = get_activity_timeline(
+        ax.plot(
+            timeline_df["date"],
+            timeline_df["Interactions"],
+            marker="o"
+        )
+
+        ax.set_title(
+            "Network Activity Over Time"
+        )
+
+        ax.set_xlabel(
+            "Date"
+        )
+
+        ax.set_ylabel(
+        "Interactions"
+        )
+
+        plt.xticks(
         
-        
-        df,
-        start_date=start_date,
-        end_date=end_date
-    )
-
-    fig, ax = plt.subplots(
-        figsize=(8, 4)
-    )
-
-    ax.plot(
-        timeline_df["date"],
-        timeline_df["Interactions"],
-        marker="o"
-    )
-
-    ax.set_title(
-        "Network Activity Over Time"
-    )
-
-    ax.set_xlabel(
-        "Date"
-    )
-
-    ax.set_ylabel(
-    "Interactions"
-    )
-
-    plt.xticks(
-    
-    rotation=45
-    )
-
-    st.pyplot(fig)
-
-    if not timeline_df.empty:
-
-        peak_day = timeline_df.loc[
-            timeline_df["Interactions"].idxmax()
-        ]
-
-        st.info(
-            f"📌 Peak activity occurred on "
-            f"{peak_day['date']} "
-            f"with {peak_day['Interactions']} interactions."
+        rotation=45
         )
 
-    else:
+        st.pyplot(fig)
 
-        st.warning(
-            "No activity found for the selected date range."
+        if not timeline_df.empty:
+
+            peak_day = timeline_df.loc[
+                timeline_df["Interactions"].idxmax()
+            ]
+
+            st.info(
+                f"📌 Peak activity occurred on "
+                f"{peak_day['date']} "
+                f"with {peak_day['Interactions']} interactions."
+            )
+
+        else:
+
+            st.warning(
+                "No activity found for the selected date range."
+            )
+
+        st.divider()
+    if page == "🔎 Investigation":
+
+        st.header(
+            "🔎 Investigation Workbench"
         )
 
-    
+        st.subheader("Network Summary")
 
-    st.subheader("Network Summary")
+        col1, col2 = st.columns(2)
 
-    col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Nodes", G.number_of_nodes())
 
-    with col1:
-        st.metric("Nodes", G.number_of_nodes())
+        with col2:
+            st.metric("Edges", G.number_of_edges())
 
-    with col2:
-        st.metric("Edges", G.number_of_edges())
+        st.subheader("Top Connected Nodes")
 
-    st.subheader("Top Connected Nodes")
+        top_nodes = get_top_connected_nodes(G)
 
-    top_nodes = get_top_connected_nodes(G)
+        top_df = pd.DataFrame(
+            top_nodes,
+            columns=["Node", "Connections"]
+        )
 
-    top_df = pd.DataFrame(
-        top_nodes,
-        columns=["Node", "Connections"]
-    )
+        st.dataframe(top_df)
 
-    st.dataframe(top_df)
+        st.subheader("Risk Scores")
 
-    st.subheader("Risk Scores")
+        risk_scores = calculate_risk_scores(G)
 
-    risk_scores = calculate_risk_scores(G)
+        risk_df = pd.DataFrame(
+        risk_scores,
+        columns=["Node", "Risk Score"]
+        )
 
-    risk_df = pd.DataFrame(
-    risk_scores,
-    columns=["Node", "Risk Score"]
-    )
+        st.dataframe(risk_df)
 
-    st.dataframe(risk_df)
+        st.subheader("Investigate a Node")
 
-    st.subheader("Investigate a Node")
+        selected_node = st.selectbox(
+            "Choose a node",
+            sorted(list(G.nodes()))
+        )
 
-    selected_node = st.selectbox(
-    "Choose a node",
-    sorted(list(G.nodes()))
-    )   
-    risk_dict = dict(risk_scores)
+        risk_dict = dict(risk_scores)
 
-    st.write("### Risk Score")
+        connections = list(
+            G.neighbors(selected_node)
+        )
 
-    st.metric(
-    "Risk Score",
-    risk_dict[selected_node]
-    )
-    connections = list(G.neighbors(selected_node))
+        communities = get_communities(G)
 
-    st.write("### Direct Connections")
+        col1, col2, col3 = st.columns(3)
 
-    for node in connections:
+        with col1:
 
-        relationship = G[selected_node][node]["relationship"]
+            st.metric(
+                "Risk Score",
+                risk_dict[selected_node]
+            )
+
+        with col2:
+
+            st.metric(
+                "Connections",
+                len(connections)
+            )
+
+        with col3:
+
+            for community in communities:
+
+                if selected_node in community:
+
+                    st.metric(
+                        "Community Size",
+                        len(community)
+                    )
+
+                    break
+
+        st.write("### 🔗 Direct Connections")
+
+        connection_text = []
+
+        for node in connections:
+
+            relationship = G[selected_node][node]["relationship"]
+
+            connection_text.append(
+                f"{node} ({relationship})"
+            )
 
         st.write(
-            f"• {node} ({relationship})"
+            ", ".join(connection_text)
         )
 
-    st.write("### Community")
+        st.write("### 👥 Community")
 
-    communities = get_communities(G)
+        for community in communities:
 
-    for community in communities:
+            if selected_node in community:
 
-        if selected_node in community:
+                st.write(
+                    ", ".join(
+                        sorted(list(community))
+                    )
+                )
 
-            for member in sorted(list(community)):
-                st.write(f"• {member}")
+                break
 
-            break
+        st.subheader("📄 Investigation Report")
 
-    st.subheader("📄 Investigation Report")
+        if st.button("Generate Report"):
 
-    if st.button("Generate Report"):
-
-        report = generate_report(
-            G,
-            selected_node
-        )
-
-        st.write("### Entity")
-        st.write(report["Entity"])
-
-        st.write("### Risk Score")
-        st.write(report["Risk Score"])
-
-        st.write("### Risk Level")
-        st.write(report["Risk Level"])
-        st.write("### Connections")
-
-        for connection in report["Connections"]:
-            st.write(f"• {connection}")
-
-        st.write("### Community")
-
-        for member in report["Community"]:
-            st.write(f"• {member}")
-
-        st.write("### Reasons")
-
-        if report["Reasons"]:
-
-            for reason in report["Reasons"]:
-                st.write(f"• {reason}")
-
-        else:
-
-            st.write("No significant findings.")
-        st.write("### Recommendation")
-        st.write(report["Recommendation"])
-
-        report_text = create_text_report(
-        report
-    )
-
-        st.download_button(
-            label="📄 Download Report",
-            data=report_text,
-            file_name=f"{selected_node}_report.txt",
-            mime="text/plain"
-        )
-
-        temp_pdf = tempfile.NamedTemporaryFile(
-        delete=False,
-        suffix=".pdf"
-        )
-
-        temp_pdf.close()
-
-        create_pdf_report(
-        report,
-        temp_pdf.name
-        )
-
-        with open(temp_pdf.name, "rb") as pdf_file:
-
-            st.download_button(
-                label="📑 Download PDF Report",
-                data=pdf_file,
-                file_name=f"Investigation_Report_{selected_node}.pdf",
-                mime="application/pdf"
+            report = generate_report(
+                G,
+                selected_node
             )
 
-    st.write("### Investigation Graph")
+            st.write("### Entity")
+            st.write(report["Entity"])
 
-    subgraph_fig = draw_node_subgraph(
-    G,
-    selected_node
-    )
+            st.write("### Risk Score")
+            st.write(report["Risk Score"])
 
-    st.pyplot(subgraph_fig)
+            st.write("### Risk Level")
+            st.write(report["Risk Level"])
+            st.write("### Connections")
 
-    st.subheader("Trace Relationship")
+            for connection in report["Connections"]:
+                st.write(f"• {connection}")
 
-    source_node = st.selectbox(
-    "Start Node",
-    sorted(list(G.nodes())),
-    key="source"
-    )
+            st.write("### Community")
 
-    target_node = st.selectbox(
-    "End Node",
-    sorted(list(G.nodes())),
-    key="target"
-    )
+            for member in report["Community"]:
+                st.write(f"• {member}")
 
-    if st.button("Trace Connection"):
+            st.write("### Reasons")
 
-        path = find_shortest_path(
-            G,
-            source_node,
-            target_node
-     )
+            if report["Reasons"]:
 
-        if path:
-            st.success(" → ".join(path))
-        else:
-            st.error("No connection found")
+                for reason in report["Reasons"]:
+                    st.write(f"• {reason}")
 
-    st.subheader("Network Visualization")
+            else:
 
-    fig = draw_graph(G)
+                st.write("No significant findings.")
+            st.write("### Recommendation")
+            st.write(report["Recommendation"])
 
-    st.pyplot(fig)
-    st.subheader("🌐 Interactive Network")
+            report_text = create_text_report(
+            report
+        )
 
-    html_file = create_interactive_graph(G)
+            st.download_button(
+                label="📄 Download Report",
+                data=report_text,
+                file_name=f"{selected_node}_report.txt",
+                mime="text/plain"
+            )
 
-    with open(html_file, "r", encoding="utf-8") as f:
+            temp_pdf = tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".pdf"
+            )
 
-        source_code = f.read()
+            temp_pdf.close()
 
-    components.html(
-        source_code,
-        height=750
-    )
+            create_pdf_report(
+            report,
+            temp_pdf.name
+            )
+
+            with open(temp_pdf.name, "rb") as pdf_file:
+
+                st.download_button(
+                    label="📑 Download PDF Report",
+                    data=pdf_file,
+                    file_name=f"Investigation_Report_{selected_node}.pdf",
+                    mime="application/pdf"
+                )
+
+        st.write("### Investigation Graph")
+
+        subgraph_fig = draw_node_subgraph(
+        G,
+        selected_node
+        )
+
+        st.pyplot(subgraph_fig)
+
+        st.subheader("Trace Relationship")
+
+        source_node = st.selectbox(
+        "Start Node",
+        sorted(list(G.nodes())),
+        key="source"
+        )
+
+        target_node = st.selectbox(
+        "End Node",
+        sorted(list(G.nodes())),
+        key="target"
+        )
+
+        if st.button("Trace Connection"):
+
+            path = find_shortest_path(
+                G,
+                source_node,
+                target_node
+        )
+
+            if path:
+                st.success(" → ".join(path))
+            else:
+                st.error("No connection found")
+
+        st.divider()
+
+    if page == "🌐 Visualizations":
+
+        st.header(
+            "🌐 Network Visualizations"
+        )
+
+        st.subheader("Network Visualization")
+
+        fig = draw_graph(G)
+
+        st.pyplot(fig)
+        st.subheader("🌐 Interactive Network")
+
+        html_file = create_interactive_graph(G)
+
+        with open(html_file, "r", encoding="utf-8") as f:
+
+            source_code = f.read()
+
+        components.html(
+            source_code,
+            height=750
+        )
